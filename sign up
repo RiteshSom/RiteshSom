@@ -1,0 +1,261 @@
+❖	Signup
+❖	package com.example.projectmanagementsystem;
+❖	import androidx.appcompat.app.AlertDialog;
+❖	import androidx.appcompat.app.AppCompatActivity;
+❖
+❖	import android.content.Context;
+❖	import android.content.DialogInterface;
+❖	import android.content.Intent;
+❖	import android.net.ConnectivityManager;
+❖	import android.net.NetworkInfo;
+❖	import android.os.Bundle;
+❖	import android.provider.Settings;
+❖	import android.view.View;
+❖	import android.widget.Button;
+❖	import android.widget.ProgressBar;
+❖	import android.widget.Toast;
+❖
+❖	import com.google.android.material.textfield.TextInputLayout;
+❖	import com.google.firebase.database.DataSnapshot;
+❖	import com.google.firebase.database.DatabaseError;
+❖	import com.google.firebase.database.DatabaseReference;
+❖	import com.google.firebase.database.FirebaseDatabase;
+❖	import com.google.firebase.database.ValueEventListener;
+❖	public class signup extends AppCompatActivity {
+❖	TextInputLayout xid,xname1,xname2,xname3,xname4,xclass,xemail,xphone,xpassword,xpname;
+❖	FirebaseDatabase rootNode;
+❖	private ProgressBar spinner;
+❖	DatabaseReference reference;
+❖	String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+❖	String MobilePattern = "[0-9]{10}";
+
+❖	String classpattern="[a-zA-Z]+";
+❖	String namepattern = "[a-zA-Z ]+";
+❖	String idpattern="[tbTB0-9.-]+";
+❖	final String status="0";
+❖	Button sub;
+❖	@Override
+❖	protected void onCreate(Bundle savedInstanceState) {
+❖	super.onCreate(savedInstanceState);
+❖	setContentView(R.layout.activity_signup);
+❖
+❖	if(! isConnected(signup.this)){
+❖	showcustomalert();
+❖	}
+❖	xid=findViewById(R.id.gid);
+❖	xname1=findViewById(R.id.name1);
+❖	xname2=findViewById(R.id.name2);
+❖	xname3=findViewById(R.id.name3);
+❖	spinner=findViewById(R.id.progressBar1);
+❖	sub=findViewById(R.id.go);
+❖	xname4=findViewById(R.id.name4);
+❖	xclass=findViewById(R.id.classroom);
+❖	xemail=findViewById(R.id.email);
+❖	xphone=findViewById(R.id.phone);
+❖	xpassword=findViewById(R.id.password);
+❖	xpname=findViewById(R.id.pname);
+❖	}
+❖	private boolean isConnected(signup signup) {
+❖		ConnectivityManager connectivityManager= (ConnectivityManager) signup.getSystemService(Context.CONNECTIVITY_SERVICE);
+❖		NetworkInfo wificonn=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+❖		NetworkInfo mobileconn=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+❖		if((wificonn !=null && wificonn.isConnected()) || (mobileconn !=null && mobileconn.isConnected()))
+❖	{
+❖	return true;
+❖	}
+❖	else {
+❖	return false;
+❖	}
+❖	}
+❖	private void showcustomalert() {
+❖	spinner.setVisibility(View.GONE);
+❖	sub.setVisibility(View.VISIBLE);
+❖	AlertDialog.Builder builder=new AlertDialog.Builder(signup.this);
+❖	builder.setMessage("Please connect to a network")
+❖	.setCancelable(false)
+❖	.setPositiveButton("Connect", new DialogInterface.OnClickListener() {
+
+❖	@Override
+❖	public void onClick(DialogInterface dialog, int which) {
+❖	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+❖	}
+❖	})
+❖	.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+❖	@Override
+❖	public void onClick(DialogInterface dialog, int which) {
+❖	startActivity(new Intent(getApplicationContext(),signup.class));
+❖	finish();
+❖	}
+❖	}).show();
+❖	}
+❖	public void go(View v){
+❖	spinner.setVisibility(View.VISIBLE);
+❖
+❖	sub.setVisibility(View.GONE);
+❖	if(! isConnected(signup.this)){
+❖	showcustomalert();
+❖	}
+❖	if(!validatename() | !validateid() | !validateemail() | !validatepassword() |
+!validatephone() | !validateclass() | !validatepname())
+❖	{
+❖	spinner.setVisibility(View.GONE);
+❖	sub.setVisibility(View.VISIBLE);
+❖	return;
+❖	}
+❖	DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+❖
+ref.child("signin").child(xid.getEditText().getText().toString()).addListenerForSingleValu eEvent(new ValueEventListener() {
+❖	@Override
+❖	public void onDataChange(DataSnapshot dataSnapshot) {
+❖	if (dataSnapshot.exists()) {
+❖	idExist();
+❖	} else {
+❖	rootNode = FirebaseDatabase.getInstance();
+❖	reference = rootNode.getReference("signin");
+❖		String id,name1,name2,name3,name4, password, phone, email,classr,pname;
+❖	id = xid.getEditText().getText().toString().toUpperCase();
+❖	name1 = xname1.getEditText().getText().toString();
+❖	name2 = xname2.getEditText().getText().toString();
+❖	name3 = xname3.getEditText().getText().toString();
+❖	name4 = xname4.getEditText().getText().toString();
+❖	password = xpassword.getEditText().getText().toString();
+❖	classr = xclass.getEditText().getText().toString();
+❖	phone = xphone.getEditText().getText().toString();
+❖	email = xemail.getEditText().getText().toString();
+
+❖	pname = xpname.getEditText().getText().toString();
+❖		Userhelperclass userhelperclass = new Userhelperclass(id,name1,name2,name3,name4, email, phone, password, classr, status,pname);
+❖	reference.child(id).setValue(userhelperclass);
+❖	done();
+❖	}
+❖	}
+❖	@Override
+❖	public void onCancelled(DatabaseError databaseError) {
+❖	}
+❖	});
+❖	}
+❖	public void done(){
+❖	Toast.makeText(this,"Registration Done Successfully",Toast.LENGTH_LONG).show();
+❖	finish();
+❖	Intent i=new Intent(signup.this,signin.class);
+❖	spinner.setVisibility(View.GONE);
+❖	sub.setVisibility(View.VISIBLE);
+❖	startActivity(i);
+❖	}
+❖	private void idExist() {
+❖	Toast.makeText(this,"ID ALREADY PRESENT !!",Toast.LENGTH_LONG).show();
+❖	xid.setError("ID Already Present");
+❖	xphone.getEditText().setText("");
+❖	xname1.getEditText().setText("");
+❖	xname2.getEditText().setText("");
+❖	xname3.getEditText().setText("");
+❖	xname4.getEditText().setText("");
+❖	xclass.getEditText().setText("");
+❖	xpassword.getEditText().setText("");
+❖	xemail.getEditText().setText("");
+❖	xpname.getEditText().setText("");
+❖	}
+❖	public Boolean validateid(){
+❖	String nameval = xid.getEditText().getText().toString();
+❖	if(nameval.isEmpty()){
+❖	xid.setError("Field cannot be empty");
+❖	return false;
+❖	} else if(!nameval.matches(idpattern)){
+❖	xid.setError("Invalid Format");
+❖	return false;
+❖	}
+❖	else {
+❖	xid.setError(null);
+❖	return true;
+❖	}
+❖	}
+❖	public Boolean validatename(){
+❖	String nameval = xname1.getEditText().getText().toString();
+❖	if(nameval.isEmpty()){
+❖	xname1.setError("Field cannot be empty");
+❖	return false;
+❖	} else if(!nameval.matches(namepattern)){
+❖	xname1.setError("Invalid Format");
+❖	return false;
+❖	}
+❖	else {
+❖	xname1.setError(null);
+❖	return true;
+❖	}
+❖	}
+❖	public Boolean validatepname(){
+❖	String nameval = xpname.getEditText().getText().toString();
+❖	if(nameval.isEmpty()){
+❖	xpname.setError("Field cannot be empty");
+❖	return false;
+❖	}
+❖	else {
+❖	xpname.setError(null);
+❖	return true;
+❖	}
+❖	}
+❖	public Boolean validateemail(){
+❖	String nameval = xemail.getEditText().getText().toString();
+❖	if(nameval.isEmpty()){
+❖	xemail.setError("Field cannot be empty");
+❖	return false;
+❖	} else if(!nameval.matches(emailPattern)){
+❖	xemail.setError("Invalid Format");
+❖	return false;
+❖	}
+❖	else {
+❖	xemail.setError(null);
+❖	return true;
+❖	}
+❖	}
+❖	public Boolean validatephone(){
+❖	String nameval = xphone.getEditText().getText().toString();
+❖	if(nameval.isEmpty()){
+❖	xphone.setError("Field cannot be empty");
+❖	return false;
+❖	} else if(!nameval.matches(MobilePattern)){
+❖	xphone.setError("Invalid Format");
+❖	return false;
+❖	}
+❖	else {
+❖	xphone.setError(null);
+
+❖	return true;
+❖	}
+❖	}
+❖	public Boolean validateclass(){
+❖	String nameval = xclass.getEditText().getText().toString();
+❖	if(nameval.isEmpty()){
+❖	xclass.setError("Field cannot be empty");
+❖	return false;
+❖	} else if(!nameval.matches(classpattern)){
+❖	xclass.setError("Invalid Format");
+❖	return false;
+❖	}
+❖	else {
+❖	xclass.setError(null);
+❖	return true;
+❖	}
+❖	}
+❖	public Boolean validatepassword(){
+❖	String nameval = xpassword.getEditText().getText().toString();
+❖	if(nameval.isEmpty()){
+❖	xpassword.setError("Field cannot be empty");
+❖	return false;
+❖	} else if(nameval.length() < 6){
+❖	xpassword.setError("should be greater than 6 digits");
+❖	return false;
+❖	}
+❖	else {
+❖	xpassword.setError(null);
+❖	return true;
+❖	}
+❖	}
+❖	public void back(View v){
+❖	Intent i=new Intent(signup.this,signin.class);
+❖	startActivity(i);
+❖	}
+❖
+❖
+❖
+❖	}
