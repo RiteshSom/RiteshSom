@@ -1,0 +1,51 @@
+❖	Teacher Dashboard:
+❖	package com.example.projectmanagementsystem;
+❖
+❖	import androidx.appcompat.app.AppCompatActivity;
+❖
+❖	import android.content.Intent;
+❖	import android.os.Bundle;
+❖	import android.view.View;
+❖	import android.widget.TextView;
+❖
+❖	public class teacherdashboard extends AppCompatActivity {
+❖
+❖	TextView user;
+❖	public String userr=" ";
+❖	@Override
+❖	protected void onCreate(Bundle savedInstanceState) {
+❖	super.onCreate(savedInstanceState);
+❖	setContentView(R.layout.activity_teacherdashboard);
+❖
+❖	user=(TextView)findViewById(R.id.user);
+
+❖	Intent intent = getIntent();
+❖	String str = intent.getStringExtra("name");
+❖	user.append(str);
+❖	}
+❖
+❖	public void notification(View view) {
+❖	Intent i =new Intent(teacherdashboard.this,addnotice.class);
+❖	i.putExtra("name",userr);
+❖	startActivity(i);
+❖	}
+❖
+❖	public void viewgroup(View view) {
+❖	Intent in =new Intent(teacherdashboard.this,viewgroups2.class);
+❖	in.putExtra("name",userr);
+❖	startActivity(in);
+❖
+❖	}
+❖
+❖	public void viewdocument(View view) {
+❖	Intent i =new Intent(teacherdashboard.this,viewgroups.class);
+❖	i.putExtra("name",userr);
+❖	startActivity(i);
+❖	}
+❖
+❖	public void groupinfo(View view) {
+❖	Intent i=new Intent(teacherdashboard.this,viewgroups2.class);
+❖	startActivity(i);
+❖	}
+❖	}
+
